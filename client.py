@@ -23,6 +23,8 @@ sa = random.randint(0, n-1) #sa is private key
 qa = sa * point  #qa is public key
 
 #signature generation
+stuID = stuID.to_bytes(2,byteorder="big")
+print(stuID)
 msg = {'ID': stuID, 'H': h, 'S': s, 'IKPUB.X': x, 'IKPUB.Y': y}
 
 m = msg.len()

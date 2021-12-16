@@ -25,13 +25,20 @@ qa = sa * point  #qa is public key
 #signature generation
 stuID = stuID.to_bytes(2,byteorder="big")
 print(stuID)
-msg = {'ID': stuID, 'H': h, 'S': s, 'IKPUB.X': x, 'IKPUB.Y': y}
 
-m = msg.len()
+#msg = {'ID': stuID, 'H': h, 'S': s, 'IKPUB.X': x, 'IKPUB.Y': y}
+
+m = 5
 k = random.randint(1, n-2)
 
 R = k * point
 r = R*x
 
-
 h = hashlib.sha3_256(r//m)
+h = h % n
+
+s = (k- (sa*h)) % n
+
+msg = {'ID': stuID, 'H': h, 'S': s, 'IKPUB.X': x, 'IKPUB.Y': y}
+
+cb.IKRegReq(h,s,x,y)

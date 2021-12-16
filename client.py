@@ -15,16 +15,21 @@ E = Curve.get_curve('secp256k1')
 
 p = E.generator
 n = E.order
+print("p: ", p)
+print("n: ", n)
 
 point = Point(x,y,E)
+print("point: ", point)
 
 sa = random.randint(0, n-1) #sa is private key
+print("sa: ", sa)
 
-qa = sa * point  #qa is public key
+qa = sa * point #qa is public key
+print("qa: ",qa)
 
 #signature generation
 stuID = stuID.to_bytes(2,byteorder="big")
-print(stuID)
+print("stuId: ", stuID)
 
 #msg = {'ID': stuID, 'H': h, 'S': s, 'IKPUB.X': x, 'IKPUB.Y': y}
 
@@ -32,13 +37,28 @@ m = 5
 k = random.randint(1, n-2)
 
 R = k * point
-r = R*x
+r = R.x
 
-h = hashlib.sha3_256(r//m)
+print("r:", r)
+
+rb = r.to_bytes(32,byteorder="big")
+mb = m.to_bytes(32,byteorder="big")
+
+h = SHA3_256.SHA3_256_Hash(rb+mb, True)
+h = SHA3_256.SHA3_256_Hash.digest(h)
+h = int.from_bytes(h,"big")
+
+print("h: ", h)
+n = int(n)
+print("n: ", n)
 h = h % n
+print("h: ", h)
 
-s = (k- (sa*h)) % n
+s = (k- (sa*h)) 
+s = s % n
 
 msg = {'ID': stuID, 'H': h, 'S': s, 'IKPUB.X': x, 'IKPUB.Y': y}
+m = len(msg)
+print(m)
 
 cb.IKRegReq(h,s,x,y)

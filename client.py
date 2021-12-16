@@ -34,7 +34,7 @@ k = random.randint(1, n-2)
 R = k * point
 r = R*x
 
-h = hashlib.sha3_256(r||m)
+h = hashlib.sha3_256(r//m)
 h = h % n
 
 s = (k- (sa*h)) % n

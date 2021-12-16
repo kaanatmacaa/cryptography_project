@@ -25,10 +25,10 @@ stuID = stuID.to_bytes(2,byteorder="big")
 print(stuID)
 
 m = 5
-m_byte = m.to_bytes(2, 'big')
+m_byte = m.to_bytes(32, 'big')
 print("m : ", m , "\n", "m_byte", m_byte, "\n")
 
-k = 2
+k = random.randint(1, n-2)
 
 R = k * P
 
@@ -39,7 +39,7 @@ print("R.x : ", R.x , "\n")
 r = R.x
 print("r :", r, "\n")
 
-r_byte = r.to_bytes(2, 'big')
+r_byte = r.to_bytes(32, 'big')
 print("r : ", r , "\n", "r_byte", r_byte, "\n")
 
 print("r : ", R.x , "\n")

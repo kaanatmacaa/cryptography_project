@@ -6,6 +6,8 @@ import math
 import client_basics as cb
 import hashlib
 
+stuID = 28239
+
 x = 93223115898197558905062012489877327981787036929201444813217704012422483432813
 y = 8985629203225767185464920094198364255740987346743912071843303975587695337619
 
@@ -21,14 +23,13 @@ sa = random.randint(0, n-1) #sa is private key
 qa = sa * point  #qa is public key
 
 #signature generation
+msg = {'ID': stuID, 'H': h, 'S': s, 'IKPUB.X': x, 'IKPUB.Y': y}
+
+m = msg.len()
 k = random.randint(1, n-2)
 
 R = k * point
 r = R*x
 
-stuID = 28239
-msg = {'ID': stuID, 'H': h, 'S': s, 'IKPUB.X': ikpub.x, 'IKPUB.Y': ikpub.y}
-
-m = msg.len()
 
 h = hashlib.sha3_256(r//m)

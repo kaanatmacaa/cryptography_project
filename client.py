@@ -17,6 +17,8 @@ P = Point(x,y,E)
 
 n = E.order #finds order of point P
 
+print("n: ", n, "\n")
+
 sa = random.randint(0, n-1) #sa is private key
 
 qa = sa * P  #qa is public key
@@ -36,7 +38,7 @@ print("\nQ:\n", R)
 print("Q on curve?", E.is_on_curve(R))
 print("R.x : ", R.x , "\n")
 
-r = R.x
+r = (R.x) % n
 print("r :", r, "\n")
 
 r_byte = r.to_bytes(32, 'big')
@@ -44,9 +46,12 @@ print("r : ", r , "\n", "r_byte", r_byte, "\n")
 
 print("r : ", R.x , "\n")
 
-#h_obj = SHA3_256.new()
+h_obj = SHA3_256.new()
+h_obj.update(r_byte + m_byte)
+print("r + m : ", (r + m), "\n")
+h = h_obj.digest()
 
-#h = hashlib.sha3_256(r//m)
+print ("h_obj: ", h_obj.hexdigest(), "\n")
 
 #signature generation
 #msg = {'ID': stuID, 'H': h, 'S': s, 'IKPUB.X': x, 'IKPUB.Y': y}

@@ -13,23 +13,40 @@ y = 8985629203225767185464920094198364255740987346743912071843303975587695337619
 
 E = Curve.get_curve('secp256k1')
 
-p = E.generator
-n = E.order
+P = Point(x,y,E)
 
-point = Point(x,y,E)
+n = E.order #finds order of point P
 
 sa = random.randint(0, n-1) #sa is private key
 
-qa = sa * point  #qa is public key
+qa = sa * P  #qa is public key
+
+stuID = stuID.to_bytes(2,byteorder="big")
+print(stuID)
+
+m = 5
+m_byte = m.to_bytes(2, 'big')
+print("m : ", m , "\n", "m_byte", m_byte, "\n")
+
+k = 2
+
+R = k * P
+
+print("\nQ:\n", R)
+print("Q on curve?", E.is_on_curve(R))
+print("R.x : ", R.x , "\n")
+
+r = R.x
+print("r :", r, "\n")
+
+r_byte = r.to_bytes(2, 'big')
+print("r : ", r , "\n", "r_byte", r_byte, "\n")
+
+print("r : ", R.x , "\n")
+
+#h_obj = SHA3_256.new()
+
+#h = hashlib.sha3_256(r//m)
 
 #signature generation
-msg = {'ID': stuID, 'H': h, 'S': s, 'IKPUB.X': x, 'IKPUB.Y': y}
-
-m = msg.len()
-k = random.randint(1, n-2)
-
-R = k * point
-r = R*x
-
-
-h = hashlib.sha3_256(r//m)
+#msg = {'ID': stuID, 'H': h, 'S': s, 'IKPUB.X': x, 'IKPUB.Y': y}

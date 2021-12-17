@@ -145,7 +145,9 @@ else:
     print("Not verified!") #not verified
 
 #2.3 otk
-T = spk_priv * sw_pub_ik
+sw_pub_spk = Point(x5, y5, E)
+
+T = spk_priv * sw_pub_spk
 
 t_byte_x = T.x.to_bytes(32, 'big')
 t_byte_y = T.y.to_bytes(32, 'big')

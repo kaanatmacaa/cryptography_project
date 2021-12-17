@@ -3,7 +3,8 @@ from Crypto.Hash import SHA3_256
 import Crypto.Random.random # a bit better secure random number generation 
 import math
 import client_basics as cb
-import hashlib, hmac
+import hashlib
+from Crypto.Hash import  HMAC
 
 
 stuID = 28239
@@ -154,10 +155,12 @@ k_hmac = SHA3_256.SHA3_256_Hash(t_byte_x+ t_byte_y + m1_byte, True)
 k_hmac = SHA3_256.SHA3_256_Hash.digest(k_hmac)
 
 def otk_cal (k_hmac, okt):
-    h_temp = hmac.new(k_hmac, digestmod=SHA3_256)
+    h_temp = HMAC.new(k_hmac, digestmod=SHA3_256)
     okt_x_y = okt.x.to_bytes(32, 'big') + okt.y.to_bytes(32, 'big')
     h_temp.update(okt_x_y)
     return h_temp.hexdigest()
+
+#(okt.x.bit_length()+7)//8
 
 for i in range(0,10):
 
@@ -170,5 +173,6 @@ for i in range(0,10):
     a = cb.OTKReg(i,otk_pub.x,otk_pub.y,otk_cal(k_hmac, otk_pub))
 
     print("Result :", a)
+    print("")
 
 

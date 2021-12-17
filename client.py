@@ -62,3 +62,35 @@ Sending message is:  {'ID': 28239,
 'IKPUB.Y': 42826606605638080211453913302126934486778992853270815969562555968218429004241}
 ID: 28239 CODE: 106590
 """
+
+#signature verification
+"""
+h = 7483239667947657079221120183470408812468827778297638119224547277257303037189
+s = 37072444792267534329042480053454078134844330208514188234371033536238826941057
+p=(0x79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798 , 0x483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8)
+sa = 17353634583535269100214152160979107048399289142843300833199020552285271875066
+"""
+
+qa = sa * p #qa is public key
+code = 106590
+
+V = s*p + h*qa
+v = V.x % n
+
+v_byte = v.to_bytes(32, 'big')
+m_byte = m.to_bytes(2, 'big')
+
+h2 = SHA3_256.SHA3_256_Hash(v_byte+ m_byte, True)
+h2 = SHA3_256.SHA3_256_Hash.digest(h2)
+h2 = int.from_bytes(h2,"big")
+h2 = h2 % n
+
+if (h == h2):
+    print("Accept!") #verified
+else:
+    print("Not verified!") #not verified
+
+#cb.IKRegVerify(code) Registered successfully reset code: 706974
+
+#2.2 signed pre key
+

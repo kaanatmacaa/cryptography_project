@@ -5,6 +5,7 @@ from Crypto import Random   # a bit better secure random number generation
 import math
 import client_basics as cb
 import hashlib
+import hw01_helper as helper
 
 stuID = 28239
 
@@ -34,24 +35,31 @@ k = random.randint(1, n-2)
 
 R = k * P
 
-print("\nQ:\n", R)
-print("Q on curve?", E.is_on_curve(R))
+print("\nR:\n", R)
+print("R on curve?", E.is_on_curve(R))
 print("R.x : ", R.x , "\n")
 
 r = (R.x) % n
-print("r :", r, "\n")
-
 r_byte = r.to_bytes(32, 'big')
 print("r : ", r , "\n", "r_byte", r_byte, "\n")
 
-print("r : ", R.x , "\n")
+print("R.x : ", R.x , "\n")
 
 h_obj = SHA3_256.new()
 h_obj.update(r_byte + m_byte)
-print("r + m : ", (r + m), "\n")
+print("r_byte + m_byte : ", (r_byte + m_byte), "\n")
 h = h_obj.digest()
 
 print ("h_obj: ", h_obj.hexdigest(), "\n")
+
+h = h % n
+s = (k  - (sa*h)) % n
+
+m = (h,s)
+
+print("m: ", m, "\n")
+
+
 
 #signature generation
 #msg = {'ID': stuID, 'H': h, 'S': s, 'IKPUB.X': x, 'IKPUB.Y': y}

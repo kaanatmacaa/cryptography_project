@@ -31,13 +31,12 @@ print("qa: ",qa)
 stuID = stuID.to_bytes(2,byteorder="big")
 print("stuId: ", stuID)
 
-#msg = {'ID': stuID, 'H': h, 'S': s, 'IKPUB.X': x, 'IKPUB.Y': y}
-
-m = 5
+m = 28239
 k = random.randint(1, n-2)
 
 R = k * point
-r = R.x
+#r = R.x
+r = (R.x) % n
 
 print("r:", r)
 
@@ -47,18 +46,14 @@ mb = m.to_bytes(32,byteorder="big")
 h = SHA3_256.SHA3_256_Hash(rb+mb, True)
 h = SHA3_256.SHA3_256_Hash.digest(h)
 h = int.from_bytes(h,"big")
-
-print("h: ", h)
-n = int(n)
-print("n: ", n)
 h = h % n
-print("h: ", h)
 
 s = (k- (sa*h)) 
 s = s % n
 
 msg = {'ID': stuID, 'H': h, 'S': s, 'IKPUB.X': x, 'IKPUB.Y': y}
-m = len(msg)
-print(m)
+
+print("h: ", h)
+print("s: ", s)
 
 cb.IKRegReq(h,s,x,y)

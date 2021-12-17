@@ -94,7 +94,7 @@ else:
 #cb.IKRegVerify(code) Registered successfully reset code: 706974
 
 #2.2 signed pre key
-spk_priv = Crypto.Random.random.randint(0, n-1) #identity - private key
+spk_priv = 97386945159447522628161478992249335496917184340606559844874149341380030966312
 print("skp_priv: ", spk_priv)
 
 spk_pub = spk_priv * p #qa is public key
@@ -143,3 +143,15 @@ else:
     print("Not verified!") #not verified
 
 #2.3 otk
+T = spk_priv * sw_pub_ik
+
+t_byte_x = T.x.to_bytes(32, 'big')
+t_byte_y = T.y.to_bytes(32, 'big')
+m1_byte = b"NoNeedToRideAndHide"
+
+k_hmac = SHA3_256.SHA3_256_Hash(t_byte_x+ t_byte_y + m1_byte, True)
+k_hmac = SHA3_256.SHA3_256_Hash.digest(k_hmac)
+k_hmac = int.from_bytes(k_hmac,"big")
+
+
+

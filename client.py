@@ -20,7 +20,8 @@ print("n: ", n)
 point = Point(x,y,E)
 print("point: ", point)
 
-sa = Crypto.Random.random.randint(0, n-1) #sa is private key
+#sa = Crypto.Random.random.randint(0, n-1) #sa is private - identity key
+sa = 17353634583535269100214152160979107048399289142843300833199020552285271875066
 print("sa: ", sa)
 
 qa = sa * p #qa is public key
@@ -93,4 +94,50 @@ else:
 #cb.IKRegVerify(code) Registered successfully reset code: 706974
 
 #2.2 signed pre key
+spk_priv = Crypto.Random.random.randint(0, n-1) #identity - private key
+print("skp_priv: ", spk_priv)
 
+spk_pub = spk_priv * p #qa is public key
+print("skp_pub: ",spk_pub)
+
+spk_x_bytes = spk_pub.x.to_bytes(32, 'big')
+spk_y_bytes = spk_pub.y.to_bytes(32, 'big')
+
+spk_m = spk_x_bytes + spk_y_bytes 
+
+k3 = Crypto.Random.random.randint(1,n-2)
+r3 = k3*p
+r3x = r3.x % n
+
+r3x_bytes = r3.x.to_bytes(32, 'big') 
+
+h3 = SHA3_256.SHA3_256_Hash(r3x_bytes+ spk_m, True)
+h3 = SHA3_256.SHA3_256_Hash.digest(h3)
+h3 = int.from_bytes(h3,"big")
+h3 = h3 % n
+
+s3 = (k3 - (sa*h3)) 
+s3 = s3 % n
+
+print("h3: ", h3)
+print("s3: ", s3)
+print(E.is_on_curve(spk_pub))
+
+x5, y5, h4, s4  = cb.SPKReg(h3,s3,spk_pub.x,spk_pub.y)
+
+sw_pub_ik = Point(x, y, E)
+
+V2 = s4*p + h4*sw_pub_ik
+v2 = V2.x % n
+
+v2_byte = v2.to_bytes(32, 'big')
+x5_byte = x5.to_bytes(32, 'big')
+y5_byte = y5.to_bytes(32, 'big')
+h4 = SHA3_256.SHA3_256_Hash(v2_byte + x5_byte + y5_byte, True)
+h4 = SHA3_256.SHA3_256_Hash.digest(h4)
+h4 = int.from_bytes(h4,"big")
+h4 = h4 % n
+if (h3 == h4):
+    print("Accept!") #verified
+else:
+    print("Not verified!") #not verified

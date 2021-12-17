@@ -3,7 +3,8 @@ from Crypto.Hash import SHA3_256
 import Crypto.Random.random # a bit better secure random number generation 
 import math
 import client_basics as cb
-import hashlib
+import hashlib, hmac
+
 
 stuID = 28239
 
@@ -151,7 +152,24 @@ m1_byte = b"NoNeedToRideAndHide"
 
 k_hmac = SHA3_256.SHA3_256_Hash(t_byte_x+ t_byte_y + m1_byte, True)
 k_hmac = SHA3_256.SHA3_256_Hash.digest(k_hmac)
-k_hmac = int.from_bytes(k_hmac,"big")
 
+def otk_cal (k_hmac, okt):
+    h_temp = hmac.new(k_hmac, digestmod=SHA3_256)
+    okt_x_y = okt.x.to_bytes(32, 'big') + okt.y.to_bytes(32, 'big')
+    hh = h_temp.update(okt_x_y)
+    return hh.hexdigest()
+
+for i in range(0,10):
+
+    otk_priv = Crypto.Random.random.randint(0, n-1) #skp_priv is private key
+    print("otk_priv_ ", i ,":", otk_priv)
+
+    otk_pub = otk_priv * p #skp_pub is public key
+    print("otk_pub_ ", i ,":",otk_pub)
+
+    otk_h_list = []
+    otk_h_list.append(otk_cal(k_hmac, otk_pub))
+
+print(otk_h_list)
 
 

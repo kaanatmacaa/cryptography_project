@@ -11,7 +11,7 @@ x = 9322311589819755890506201248987732798178703692920144481321770401242248343281
 y = 8985629203225767185464920094198364255740987346743912071843303975587695337619
 
 E = Curve.get_curve('secp256k1')
-
+print("E: ", E)
 p = E.generator
 n = E.order
 print("p: ", p)
@@ -30,7 +30,7 @@ print("qa: ",qa)
 stuID = stuID.to_bytes(2,byteorder="big")
 print("stuId: ", stuID)
 
-m = 28239
+m = 26529
 k = Crypto.Random.random.randint(1, n-2)
 
 R = k * p
@@ -52,7 +52,7 @@ s = s % n
 print("h: ", h)
 print("s: ", s)
 print(E.is_on_curve(qa))
-#cb.IKRegReq(h,s,qa.x,qa.y) ---------> ID: 28239 CODE: 106590
+cb.IKRegReq(h,s,qa.x,qa.y) #---------> ID: 28239 CODE: 106590
 """
 ID: 28239 CODE: 106590
 Sending message is:  {'ID': 28239, 
@@ -61,6 +61,8 @@ Sending message is:  {'ID': 28239,
 'IKPUB.X': 39976054850521507574967626301504309882077713530204759279452697237879489454571, 
 'IKPUB.Y': 42826606605638080211453913302126934486778992853270815969562555968218429004241}
 ID: 28239 CODE: 106590
+
+FOR ID 26529
 """
 
 #signature verification
@@ -90,7 +92,6 @@ if (h == h2):
 else:
     print("Not verified!") #not verified
 
-#cb.IKRegVerify(code) Registered successfully reset code: 706974
+cb.IKRegVerify(code) #Registered successfully reset code: 706974
 
 #2.2 signed pre key
-

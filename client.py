@@ -52,7 +52,7 @@ s = s % n
 print("h: ", h)
 print("s: ", s)
 print(E.is_on_curve(qa))
-cb.IKRegReq(h,s,qa.x,qa.y) #---------> ID: 28239 CODE: 106590
+#cb.IKRegReq(h,s,qa.x,qa.y) #---------> ID: 28239 CODE: 106590
 """
 ID: 28239 CODE: 106590
 Sending message is:  {'ID': 28239, 
@@ -74,7 +74,7 @@ sa = 173536345835352691002141521609791070483992891428433008331990205522852718750
 """
 
 qa = sa * p #qa is public key
-code = 106590
+code = 746223
 
 V = s*p + h*qa
 v = V.x % n
@@ -95,3 +95,45 @@ else:
 cb.IKRegVerify(code) #Registered successfully reset code: 706974
 
 #2.2 signed pre key
+skp_priv = Crypto.Random.random.randint(0, n-1) #skp_priv is private key
+print("skp_priv: ", skp_priv)
+
+skp_pub = skp_priv * p #skp_pub is public key
+print("skp_pub: ",skp_pub)
+
+spk_x_bytes = skp_pub.x.to_bytes(32, 'big')
+spk_y_bytes = skp_pub.y.to_bytes(32, 'big')
+print("spk_x_bytes: ",spk_x_bytes)
+print("spk_y_bytes: ",spk_y_bytes)
+
+spk_m = spk_x_bytes + spk_y_bytes
+print("spk_m: ",spk_m)
+
+h3 = SHA3_256.SHA3_256_Hash(r_byte + spk_m, True)
+h3 = SHA3_256.SHA3_256_Hash.digest(h3)
+h3 = int.from_bytes(h3,"big")
+h3 = h3 % n
+
+s3 = (k- (sa*h3)) 
+s3 = s3 % n
+
+print("h3: ", h3)
+print("s3: ", s3)
+print(E.is_on_curve(skp_pub))
+
+V2 = s3*p + h3*qa
+v2 = V2.x % n
+
+v2_byte = v2.to_bytes(32, 'big')
+
+h4 = SHA3_256.SHA3_256_Hash(v2_byte+ spk_m, True)
+h4 = SHA3_256.SHA3_256_Hash.digest(h4)
+h4 = int.from_bytes(h4,"big")
+h4 = h4 % n
+
+if (h3 == h4):
+    print("Accept!") #verified
+else:
+    print("Not verified!") #not verified
+
+cb.SPKReg(h3,s3,skp_pub.x,skp_pub.y)

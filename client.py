@@ -133,11 +133,13 @@ v2 = V2.x % n
 v2_byte = v2.to_bytes(32, 'big')
 x5_byte = x5.to_bytes(32, 'big')
 y5_byte = y5.to_bytes(32, 'big')
-h4 = SHA3_256.SHA3_256_Hash(v2_byte + x5_byte + y5_byte, True)
-h4 = SHA3_256.SHA3_256_Hash.digest(h4)
-h4 = int.from_bytes(h4,"big")
-h4 = h4 % n
-if (h3 == h4):
+h5 = SHA3_256.SHA3_256_Hash(v2_byte + x5_byte + y5_byte, True)
+h5 = SHA3_256.SHA3_256_Hash.digest(h5)
+h5 = int.from_bytes(h5,"big")
+h5 = h5 % n
+if (h4 == h5):
     print("Accept!") #verified
 else:
     print("Not verified!") #not verified
+
+#2.3 otk

@@ -6,6 +6,8 @@ import math
 import client_basics as cb
 import hashlib
 import hw01_helper as helper
+import sys
+#sys.getsizeof(m)
 
 stuID = 28239
 
@@ -25,7 +27,7 @@ sa = random.randint(0, n-1) #sa is private key
 qa = sa * P  #qa is public key
 
 m = 5
-m_byte = m.to_bytes(32, 'big')
+m_byte = m.to_bytes(1, 'big')
 print("m : ", m , "\n", "m_byte", m_byte, "\n")
 
 k = random.randint(1, n-2)
@@ -70,6 +72,10 @@ v_byte = v.to_bytes(32, 'big')
 
 print("v_byte: ", v_byte, "\n")
 
+m = 5
+m_byte = m.to_bytes(1,'big')
+print("m : ", m , "\n", "m_byte", m_byte, "\n")
+
 v_obj = SHA3_256.new()
 v_obj.update(r_byte + m_byte)
 print("v_byte + m_byte : ", (v_byte + m_byte), "\n")
@@ -91,7 +97,7 @@ else :
 print("h_prime: ", h_prime, "\n")
 
 
-#cb.IKRegReq(h,s,x,y)
+cb.IKRegReq(h,s,x,y)
 
 
 

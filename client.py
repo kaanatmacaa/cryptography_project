@@ -156,20 +156,19 @@ k_hmac = SHA3_256.SHA3_256_Hash.digest(k_hmac)
 def otk_cal (k_hmac, okt):
     h_temp = hmac.new(k_hmac, digestmod=SHA3_256)
     okt_x_y = okt.x.to_bytes(32, 'big') + okt.y.to_bytes(32, 'big')
-    hh = h_temp.update(okt_x_y)
-    return hh.hexdigest()
+    h_temp.update(okt_x_y)
+    return h_temp.hexdigest()
 
 for i in range(0,10):
 
-    otk_priv = Crypto.Random.random.randint(0, n-1) #skp_priv is private key
+    otk_priv = Crypto.Random.random.randint(0, n-1) #otk_priv is private key
     print("otk_priv_ ", i ,":", otk_priv)
 
-    otk_pub = otk_priv * p #skp_pub is public key
+    otk_pub = otk_priv * p #otk_pub is public key
     print("otk_pub_ ", i ,":",otk_pub)
 
-    otk_h_list = []
-    otk_h_list.append(otk_cal(k_hmac, otk_pub))
+    a = cb.OTKReg(i,otk_pub.x,otk_pub.y,otk_cal(k_hmac, otk_pub))
 
-print(otk_h_list)
+    print("Result :", a)
 
 

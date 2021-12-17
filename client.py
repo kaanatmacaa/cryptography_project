@@ -24,9 +24,6 @@ sa = random.randint(0, n-1) #sa is private key
 
 qa = sa * P  #qa is public key
 
-stuID = stuID.to_bytes(2,byteorder="big")
-print(stuID)
-
 m = 5
 m_byte = m.to_bytes(32, 'big')
 print("m : ", m , "\n", "m_byte", m_byte, "\n")
@@ -48,9 +45,11 @@ print("R.x : ", R.x , "\n")
 h_obj = SHA3_256.new()
 h_obj.update(r_byte + m_byte)
 print("r_byte + m_byte : ", (r_byte + m_byte), "\n")
-h = h_obj.digest()
-
 print ("h_obj: ", h_obj.hexdigest(), "\n")
+h = h_obj.digest()
+h = int.from_bytes(h,"big")
+
+print ("h: ", h, "\n")
 
 h = h % n
 s = (k  - (sa*h)) % n
@@ -58,6 +57,41 @@ s = (k  - (sa*h)) % n
 m = (h,s)
 
 print("m: ", m, "\n")
+
+print("s: ", s)
+
+V = (s * P) + (h * qa)
+
+v = (V.x) % n
+
+print("v: ", v, "\n")
+
+v_byte = v.to_bytes(32, 'big')
+
+print("v_byte: ", v_byte, "\n")
+
+v_obj = SHA3_256.new()
+v_obj.update(r_byte + m_byte)
+print("v_byte + m_byte : ", (v_byte + m_byte), "\n")
+print ("v_obj: ", v_obj.hexdigest(), "\n")
+
+h_prime = v_obj.digest()
+h_prime = int.from_bytes(h_prime,"big")
+
+
+h_prime = h_prime % n
+
+if h_prime == h :
+    print("Succes!")
+
+else :
+    print("Fail!")
+
+
+print("h_prime: ", h_prime, "\n")
+
+
+#cb.IKRegReq(h,s,x,y)
 
 
 

@@ -61,7 +61,6 @@ Sending message is:  {'ID': 28239,
 'IKPUB.X': 39976054850521507574967626301504309882077713530204759279452697237879489454571, 
 'IKPUB.Y': 42826606605638080211453913302126934486778992853270815969562555968218429004241}
 ID: 28239 CODE: 106590
-
 """
 
 #signature verification
@@ -89,4 +88,9 @@ h2 = h2 % n
 if (h == h2):
     print("Accept!") #verified
 else:
-    print("Not verified!")
+    print("Not verified!") #not verified
+
+#cb.IKRegVerify(code) Registered successfully reset code: 706974
+
+#2.2 signed pre key
+

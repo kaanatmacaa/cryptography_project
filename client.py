@@ -1,5 +1,6 @@
 from ecpy.curves import Curve,Point
-from Crypto.Hash import SHA3_256
+from Crypto.Hash import SHA3_256 
+from Crypto.Hash import SHA256
 import Crypto.Random.random # a bit better secure random number generation 
 import math
 import client_basics as cb
@@ -157,7 +158,7 @@ k_hmac = SHA3_256.SHA3_256_Hash(t_byte_x+ t_byte_y + m1_byte, True)
 k_hmac = SHA3_256.SHA3_256_Hash.digest(k_hmac)
 
 def otk_cal (k_hmac, okt):
-    h_temp = HMAC.new(k_hmac, digestmod=SHA3_256)
+    h_temp = HMAC.new(k_hmac, digestmod=SHA256)
     okt_x_y = okt.x.to_bytes(32, 'big') + okt.y.to_bytes(32, 'big')
     h_temp.update(okt_x_y)
     return h_temp.hexdigest()

@@ -132,10 +132,10 @@ print("s3: ", s3)
 print(E.is_on_curve(spk_pub))
 
 #cb.ResetSPK(h, s) reseted spk do not comment out
-
 #x5, y5, h4, s4  = cb.SPKReg(h3,s3,spk_pub.x,spk_pub.y)
 
 print("2.2 - Key Verification")
+
 x5 = 85040781858568445399879179922879835942032506645887434621361669108644661638219
 y5 = 46354559534391251764410704735456214670494836161052287022185178295305851364841
 h4 = 5803701983061410379326636803521956018914824623195521764663852100446683299651
@@ -168,28 +168,21 @@ print("")
 print("2.3 - OTKS:")
 sw_pub_spk = Point(x5, y5, E)
 T = spk_priv * sw_pub_spk
-
 t_byte_x = T.x.to_bytes(32, 'big')
 t_byte_y = T.y.to_bytes(32, 'big')
-m1_byte = b"NoNeedToRideAndHide"
-
-u_dict =  t_byte_x+ t_byte_y + m1_byte
-k_hmac = SHA3_256.SHA3_256_Hash(u_dict, True)
-k_hmac = SHA3_256.SHA3_256_Hash.digest(k_hmac)
+m1_byte = b'NoNeedToRideAndHide'
+U =  t_byte_x + t_byte_y  + m1_byte
+k_hmac = SHA3_256.new(U).digest() 
 
 for i in range(0,10):
     print("i: ", i)
     otk_priv = Crypto.Random.random.randint(0, n-1) #otk_priv is private key
     print("otk_priv_ ", i ,":", otk_priv)
-
     otk_pub = otk_priv * p #otk_pub is public key
     print("otk_pub_ ", i ,":",otk_pub)
-    
-    #hmaci = otk_cal(k_hmac, otk_pub)
 
-    hmac_object = HMAC.new(k_hmac, digestmod=SHA3_256)
     okt_x_y = otk_pub.x.to_bytes(32, 'big') + otk_pub.y.to_bytes(32, 'big') 
-    hmac_object = hmac_object.update(okt_x_y)
+    hmac_object = HMAC.new(k_hmac, okt_x_y, digestmod=SHA3_256)
     hmac_object = hmac_object.hexdigest()
     
     a = cb.OTKReg(i, otk_pub.x, otk_pub.y, hmac_object)

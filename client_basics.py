@@ -83,4 +83,3 @@ def ResetOTK(h,s):
     print("Sending message is: ", mes)
     response = requests.delete('{}/{}'.format(API_URL, "ResetOTK"), json = mes)		
     if((response.ok) == False): print(response.json())
-

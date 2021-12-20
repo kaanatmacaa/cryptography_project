@@ -165,6 +165,8 @@ def otk_cal (k_hmac, okt):
 
 #(okt.x.bit_length()+7)//8
 
+otk_priv_arr = []
+
 for i in range(0,10):
 
     otk_priv = Crypto.Random.random.randint(0, n-1) #otk_priv is private key
@@ -177,5 +179,6 @@ for i in range(0,10):
 
     print("Result :", a)
     print("")
+    otk_priv_arr.append(otk_priv)
 
-
+print(otk_priv_arr)

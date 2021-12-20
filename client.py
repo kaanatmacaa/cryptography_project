@@ -1,9 +1,12 @@
 from ecpy.curves import Curve,Point
-from Crypto.Hash import SHA3_256
+from Crypto.Hash import SHA3_256 
+from Crypto.Hash import SHA256
 import Crypto.Random.random # a bit better secure random number generation 
 import math
 import client_basics as cb
 import hashlib
+from Crypto.Hash import  HMAC
+
 
 stuID = 28239
 
@@ -94,7 +97,7 @@ else:
 #cb.IKRegVerify(code) Registered successfully reset code: 706974
 
 #2.2 signed pre key
-spk_priv = Crypto.Random.random.randint(0, n-1) #identity - private key
+spk_priv = 97386945159447522628161478992249335496917184340606559844874149341380030966312
 print("skp_priv: ", spk_priv)
 
 spk_pub = spk_priv * p #qa is public key
@@ -143,3 +146,36 @@ else:
     print("Not verified!") #not verified
 
 #2.3 otk
+sw_pub_spk = Point(x5, y5, E)
+
+T = spk_priv * sw_pub_spk
+
+t_byte_x = T.x.to_bytes(32, 'big')
+t_byte_y = T.y.to_bytes(32, 'big')
+m1_byte = b"NoNeedToRideAndHide"
+
+k_hmac = SHA3_256.SHA3_256_Hash(t_byte_x+ t_byte_y + m1_byte, True)
+k_hmac = SHA3_256.SHA3_256_Hash.digest(k_hmac)
+
+def otk_cal (k_hmac, okt):
+    h_temp = HMAC.new(k_hmac, digestmod=SHA256)
+    okt_x_y = okt.x.to_bytes(32, 'big') + okt.y.to_bytes(32, 'big')
+    h_temp.update(okt_x_y)
+    return h_temp.hexdigest()
+
+#(okt.x.bit_length()+7)//8
+
+for i in range(0,10):
+
+    otk_priv = Crypto.Random.random.randint(0, n-1) #otk_priv is private key
+    print("otk_priv_ ", i ,":", otk_priv)
+
+    otk_pub = otk_priv * p #otk_pub is public key
+    print("otk_pub_ ", i ,":",otk_pub)
+
+    a = cb.OTKReg(i,otk_pub.x,otk_pub.y,otk_cal(k_hmac, otk_pub))
+
+    print("Result :", a)
+    print("")
+
+

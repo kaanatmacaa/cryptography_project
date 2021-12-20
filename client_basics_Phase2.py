@@ -107,5 +107,3 @@ def Checker(stuID, stuIDB, msgID, decmsg):
     print("Sending message is: ", mes)
     response = requests.put('{}/{}'.format(API_URL, "Checker"), json = mes)		
     print(response.json())
-
-

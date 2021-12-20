@@ -84,10 +84,25 @@ def findKS(otkid, ekx, eky):
     U = T.x.to_bytes(32, "big") + T.y.to_bytes(32, "big") + b'MadMadWorld'
     KS = SHA3_256.SHA3_256_Hash(U, True)
     KS = SHA3_256.SHA3_256_Hash.digest(KS)
+    return KS
 
 ks1 = findKS(otkid1, ekx1, eky1)
-ks2 = findKS(otkid2, ekx2, eky2)
-ks3 = findKS(otkid3, ekx3, eky3)
-ks4 = findKS(otkid4, ekx4, eky4)
-ks5 = findKS(otkid5, ekx5, eky5)
-    
+#ks2 = findKS(otkid2, ekx2, eky2)
+#ks3 = findKS(otkid3, ekx3, eky3)
+#ks4 = findKS(otkid4, ekx4, eky4)
+#ks5 = findKS(otkid5, ekx5, eky5)
+
+def findKdf(ks):
+    kenc = SHA3_256.SHA3_256_Hash(ks + b'LeaveMeAlone' , True)
+    kenc = SHA3_256.SHA3_256_Hash.digest(kenc)
+    khmac = SHA3_256.SHA3_256_Hash(kenc + b'GlovesAndSteeringWhell' , True)
+    khmac = SHA3_256.SHA3_256_Hash.digest(khmac)
+    kkdf = SHA3_256.SHA3_256_Hash(khmac + b'YouWillNotHaveTheDrink' , True)
+    kkdf = SHA3_256.SHA3_256_Hash.digest(kkdf)
+    return kenc, khmac, kkdf
+
+kenc1, khmac1, kkdf1 = findKdf(ks1)
+kenc2, khmac2, kkdf2 = findKdf(kkdf1)
+kenc3, khmac3, kkdf3 = findKdf(kkdf2)
+kenc4, khmac4, kkdf4 = findKdf(kkdf3)
+kenc5, khmac5, kkdf5 = findKdf(kkdf4)

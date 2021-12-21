@@ -1,11 +1,10 @@
 from ecpy.curves import Curve,Point
 from Crypto.Hash import SHA3_256 
-from Crypto.Hash import SHA256
 import Crypto.Random.random # a bit better secure random number generation 
 import client_basics as cb
 import client_basics_Phase2 as cb2
 from Crypto.Hash import  HMAC
-import math
+from Crypto.Cipher import AES
 
 #3.1 Downloading Messages from the server
 
@@ -80,7 +79,7 @@ idb5, otkid5, msgid5, msg5, ekx5, eky5 = cb2.ReqMsg(h, s)
 #3.2.1 Session Key (KS) 
 def findKS(otkid, ekx, eky):
     ek = Point(ekx, eky, E)
-    T = ek * otk_priv_arr[otkid-1]
+    T = ek * otk_priv_arr[otkid]
     U = T.x.to_bytes(32, "big") + T.y.to_bytes(32, "big") + b'MadMadWorld'
     KS = SHA3_256.SHA3_256_Hash(U, True)
     KS = SHA3_256.SHA3_256_Hash.digest(KS)
@@ -106,3 +105,27 @@ kenc2, khmac2, kkdf2 = findKdf(kkdf1)
 kenc3, khmac3, kkdf3 = findKdf(kkdf2)
 kenc4, khmac4, kkdf4 = findKdf(kkdf3)
 kenc5, khmac5, kkdf5 = findKdf(kkdf4)
+
+
+
+"""
+c1 -> khmac -> if valid -> aes decr -> m1 
+"""
+khmac1_int = int.from_bytes(khmac1, "big")
+len1 = len(str(khmac1_int))
+idx1 = -(len1-1) 
+msg1 = str(msg1)
+if (int(msg1[idx1:]) == khmac1_int):
+    print("Authenticated")
+else:
+    print("Not allowded")
+    
+khmac2_int = int.from_bytes(khmac2, "big")
+len2 = len(str(khmac2_int))
+idx2 = -(len2-1) 
+msg2 = str(msg2)
+if (int(msg2[idx2:]) == khmac2_int):
+    print("Authenticated")
+else:
+    print("Not allowded")
+    

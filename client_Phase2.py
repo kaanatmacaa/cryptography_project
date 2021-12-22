@@ -106,26 +106,40 @@ kenc3, khmac3, kkdf3 = findKdf(kkdf2)
 kenc4, khmac4, kkdf4 = findKdf(kkdf3)
 kenc5, khmac5, kkdf5 = findKdf(kkdf4)
 
+khmacs = [int.from_bytes(khmac1, byteorder="big"), khmac2, khmac3, khmac4, khmac5]
+cmsgs = []
+
+def findHmac(msg, i):
+    msg = int(str(msg))
+    msg = msg.to_bytes((msg.bit_length()+7)//8,"big")
+    nonce = msg[:8]
+    hmac = msg[-32:]
+    theMsg = msg[8:-32]
+    hmac_new = HMAC.new(khmacs[i-1], msg, digestmod=SHA3_256)
+    hmac_new= SHA3_256.SHA3_256_Hash.digest(hmac_new)
+    if(hmac == hmac_new):
+        print("True, msg authenticated!")
+        cmsgs.append(theMsg)
+    else:
+        print("False, not authenticated!")
+
+findHmac(msg1, 1)
+"""
+findHmac(msg2, 2)
+findHmac(msg3, 3)
+findHmac(msg4, 4)
+findHmac(msg5, 5)
+"""
+
 
 
 """
 c1 -> khmac -> if valid -> aes decr -> m1 
 """
-khmac1_int = int.from_bytes(khmac1, "big")
-len1 = len(str(khmac1_int))
-idx1 = -(len1-1) 
-msg1 = str(msg1)
-if (int(msg1[idx1:]) == khmac1_int):
-    print("Authenticated")
-else:
-    print("Not allowded")
-    
-khmac2_int = int.from_bytes(khmac2, "big")
-len2 = len(str(khmac2_int))
-idx2 = -(len2-1) 
-msg2 = str(msg2)
-if (int(msg2[idx2:]) == khmac2_int):
-    print("Authenticated")
-else:
-    print("Not allowded")
-    
+
+
+"""
+cipher = AES.new(key, AES.MODE_CTR, nonce=ctext[0:8]) #keyenc, AES.MODE_CTR, nonce=ctext[0:8]
+dtext = cipher.decrypt(ctext[8:])
+print("Decrypted text: ", dtext.decode('UTF-8'))
+"""

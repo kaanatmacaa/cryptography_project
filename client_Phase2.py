@@ -211,10 +211,11 @@ idb5, otkid5, msgid5, msg5, ekx5, eky5 = cb2.ReqMsg(h, s)
 #3.2.1 Session Key (KS) 
 def findKS(otkid, ekx, eky):
     ek = Point(ekx, eky, E)
-    T = ek * otk_priv_arr[otkid1]
-    U = T.x.to_bytes((T.x.bit_length()+7)//8, "big") + T.y.to_bytes((T.y.bit_length()+7)//8, "big") + b'MadMadWorld'
-    KS = SHA3_256.SHA3_256_Hash(U, True)
-    KS = SHA3_256.SHA3_256_Hash.digest(KS)
+    T = otk_priv_arr[otkid] * ek
+    U = (T.x).to_bytes(((T.x).bit_length()+7)//8, "big") + (T.y).to_bytes(((T.y).bit_length()+7)//8, "big") + b'MadMadWorld'
+    #KS = SHA3_256.SHA3_256_Hash(U, True)
+    #KS = SHA3_256.SHA3_256_Hash.digest(KS)
+    KS = SHA3_256.new(U).digest()
     return KS
 
 ks1 = findKS(otkid1, ekx1, eky1)
@@ -224,13 +225,21 @@ ks1 = findKS(otkid1, ekx1, eky1)
 #ks5 = findKS(otkid5, ekx5, eky5)
 
 def findKdf(ks):
+    ''' 
     kenc = SHA3_256.SHA3_256_Hash(ks + b'LeaveMeAlone' , True)
     kenc = SHA3_256.SHA3_256_Hash.digest(kenc)
+    
     khmac = SHA3_256.SHA3_256_Hash(kenc + b'GlovesAndSteeringWhell' , True)
     khmac = SHA3_256.SHA3_256_Hash.digest(khmac)
     kkdf = SHA3_256.SHA3_256_Hash(khmac + b'YouWillNotHaveTheDrink' , True)
     kkdf = SHA3_256.SHA3_256_Hash.digest(kkdf)
+    '''
+    kenc = SHA3_256.new(ks + b'LeaveMeAlone').digest()
+    khmac = SHA3_256.new(kenc + b'GlovesAndSteeringWheel').digest()
+    kkdf = SHA3_256.new(khmac + b'YouWillNotHaveTheDrink').digest()
+
     return kenc, khmac, kkdf
+
 
 kenc1, khmac1, kkdf1 = findKdf(ks1)
 kenc2, khmac2, kkdf2 = findKdf(kkdf1)
@@ -242,16 +251,16 @@ khmacs = [khmac1, khmac2, khmac3, khmac4, khmac5]
 cmsgs = []
 
 def findHmac(msg, i):
-    msg = int(str(msg))
     msg = msg.to_bytes((msg.bit_length()+7)//8,"big")
     nonce = msg[:8]
     hmac = msg[-32:]
     theMsg = msg[8:-32]
-    hmac_new = HMAC.new(khmacs[i-1], theMsg, digestmod=SHA256)
-    hmac_new= hmac_new.digest()
+    hmac_new = HMAC.new(khmacs[i-1], digestmod=SHA256)
+    hmac_new.update(theMsg)
+    hmac_final= hmac_new.digest()
     print("hmac: ", hmac)
-    print("hmac_new: ", hmac_new)
-    if(hmac == hmac_new):
+    print("hmac_final: ", hmac_final)
+    if(hmac == hmac_final):
         print("True, msg authenticated!")
         cmsgs.append(theMsg)
     else:

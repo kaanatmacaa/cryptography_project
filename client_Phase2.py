@@ -13,13 +13,6 @@ stuID = 28239
 x = 93223115898197558905062012489877327981787036929201444813217704012422483432813
 y = 8985629203225767185464920094198364255740987346743912071843303975587695337619
 
-otk_priv_arr = [83298859977202201362433530055836210215313344042615971439947510539930030876612, 80945415910468963656028379507369284051398331890366455637211132375624882502648,
-                7214091485102261185920748254194797363592172604660303457233174528351288607051, 70886281761299209392969200283432734233583256311456827711451782319132481906688,
-                108248073280373904869439311525542273291926606389745818048496004143136788243256, 104044224450327805637437872873428502239240515265355492529556983502788476155365, 
-                103203770983879144180731786826568453319103211309535365529557208007997947676943, 100559165165887943168055795372494494335653406621330867942899724151753006345975,
-                49863498070383577932144337502242096036832689161207973578547287608488769921260, 82300136510427911821748918458945211621400681495334556494558977052164509126856]
-
-
 E = Curve.get_curve('secp256k1')
 
 p = E.generator
@@ -63,6 +56,145 @@ s = s % n
 print("h: ", h)
 print("s: ", s)
 
+print(E.is_on_curve(qa))
+
+#cb.IKRegReq(h,s,qa.x,qa.y) ---------> ID: 28239 CODE: 106590
+"""
+ID: 28239 CODE: 106590
+Sending message is:  {'ID': 28239, 
+'H': 7483239667947657079221120183470408812468827778297638119224547277257303037189, 
+'S': 37072444792267534329042480053454078134844330208514188234371033536238826941057, 
+'IKPUB.X': 39976054850521507574967626301504309882077713530204759279452697237879489454571, 
+'IKPUB.Y': 42826606605638080211453913302126934486778992853270815969562555968218429004241}
+ID: 28239 CODE: 106590
+"""
+
+#signature verification
+"""
+h = 7483239667947657079221120183470408812468827778297638119224547277257303037189
+s = 37072444792267534329042480053454078134844330208514188234371033536238826941057
+p=(0x79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798 , 0x483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8)
+sa = 17353634583535269100214152160979107048399289142843300833199020552285271875066
+"""
+
+qa = sa * p #qa is public key
+code = 106590
+
+V = s*p + h*qa
+v = V.x % n
+
+v_byte = v.to_bytes(32, 'big')
+m_byte = m.to_bytes(2, 'big')
+
+h2 = SHA3_256.SHA3_256_Hash(v_byte+ m_byte, True)
+h2 = SHA3_256.SHA3_256_Hash.digest(h2)
+h2 = int.from_bytes(h2,"big")
+h2 = h2 % n
+
+if (h == h2):
+    print("Accept!") #verified
+else:
+    print("Not verified!") #not verified
+
+#cb.IKRegVerify(code) Registered successfully reset code: 706974
+
+#2.2 signed pre key
+spk_priv = 97386945159447522628161478992249335496917184340606559844874149341380030966312
+print("skp_priv: ", spk_priv)
+
+spk_pub = spk_priv * p #qa is public key
+print("skp_pub: ",spk_pub)
+
+spk_x_bytes = spk_pub.x.to_bytes(32, 'big')
+spk_y_bytes = spk_pub.y.to_bytes(32, 'big')
+
+spk_m = spk_x_bytes + spk_y_bytes 
+
+k3 = Crypto.Random.random.randint(1,n-2)
+r3 = k3*p
+r3x = r3.x % n
+
+r3x_bytes = r3.x.to_bytes(32, 'big') 
+
+h3 = SHA3_256.SHA3_256_Hash(r3x_bytes+ spk_m, True)
+h3 = SHA3_256.SHA3_256_Hash.digest(h3)
+h3 = int.from_bytes(h3,"big")
+h3 = h3 % n
+
+s3 = (k3 - (sa*h3)) 
+s3 = s3 % n
+
+print("h3: ", h3)
+print("s3: ", s3)
+print(E.is_on_curve(spk_pub))
+
+x5, y5, h4, s4  = cb.SPKReg(h3,s3,spk_pub.x,spk_pub.y)
+
+sw_pub_ik = Point(x, y, E)
+
+V2 = s4*p + h4*sw_pub_ik
+v2 = V2.x % n
+
+v2_byte = v2.to_bytes(32, 'big')
+x5_byte = x5.to_bytes(32, 'big')
+y5_byte = y5.to_bytes(32, 'big')
+h5 = SHA3_256.SHA3_256_Hash(v2_byte + x5_byte + y5_byte, True)
+h5 = SHA3_256.SHA3_256_Hash.digest(h5)
+h5 = int.from_bytes(h5,"big")
+h5 = h5 % n
+if (h4 == h5):
+    print("Accept!") #verified
+else:
+    print("Not verified!") #not verified
+
+#2.3 otk
+
+sw_pub_spk = Point(x5, y5, E)
+
+T = spk_priv * sw_pub_spk
+
+t_byte_x = T.x.to_bytes(32, 'big')
+t_byte_y = T.y.to_bytes(32, 'big')
+m1_byte = b"NoNeedToRideAndHide"
+
+k_hmac = SHA3_256.SHA3_256_Hash(t_byte_x+ t_byte_y + m1_byte, True)
+k_hmac = SHA3_256.SHA3_256_Hash.digest(k_hmac)
+
+def otk_cal (k_hmac, okt):
+    h_temp = HMAC.new(k_hmac, digestmod=SHA256)
+    okt_x_y = okt.x.to_bytes(32, 'big') + okt.y.to_bytes(32, 'big')
+    h_temp.update(okt_x_y)
+    return h_temp.hexdigest()
+
+#(okt.x.bit_length()+7)//8
+
+otk_priv_arr = []
+
+for i in range(0,10):
+
+    otk_priv = Crypto.Random.random.randint(0, n-1) #otk_priv is private key
+    print("otk_priv_ ", i ,":", otk_priv)
+
+    otk_pub = otk_priv * p #otk_pub is public key
+    print("otk_pub_ ", i ,":",otk_pub)
+
+    #a = cb.OTKReg(i,otk_pub.x,otk_pub.y,otk_cal(k_hmac, otk_pub))
+    a = "True"
+    print("Result :", a)
+    print("")
+    otk_priv_arr.append(otk_priv)
+
+print(otk_priv_arr)
+
+
+
+#PHASE 2 
+otk_priv_arr = [58812550160581575630508725941736887561194979997043183966966185494849940249251, 113134768184265094285950611350831621014151997963594796624397301921177885399934,
+                20267076738575867168349684504005399720465890257461154860365299450991689807875, 78437127372312140030973816279715228984360670118096910250844032095937373991384,
+                88238604028222129991341306324137765037896705104940596475795590577249277344506, 114029923154266917463210894558908505676709706603670706106915845597898785505321, 
+                90731849819740707596931152818883722845170974802295882459622297656179653042346, 114616496261347604295832409209194250071998773458541013733988138469452990133859, 
+                71060922069370357355738292982925762459434523425813481073577732910597829357146, 103462645275059932554340636620533275739926310988787191875565565529839223108967]
+
 cb2.PseudoSendMsg(h, s) #Your favourite pseudo-client sent you 5 messages. You can get them from the server
 
 print("1:")
@@ -79,8 +211,8 @@ idb5, otkid5, msgid5, msg5, ekx5, eky5 = cb2.ReqMsg(h, s)
 #3.2.1 Session Key (KS) 
 def findKS(otkid, ekx, eky):
     ek = Point(ekx, eky, E)
-    T = ek * otk_priv_arr[otkid]
-    U = T.x.to_bytes(32, "big") + T.y.to_bytes(32, "big") + b'MadMadWorld'
+    T = ek * otk_priv_arr[otkid1]
+    U = T.x.to_bytes((T.x.bit_length()+7)//8, "big") + T.y.to_bytes((T.y.bit_length()+7)//8, "big") + b'MadMadWorld'
     KS = SHA3_256.SHA3_256_Hash(U, True)
     KS = SHA3_256.SHA3_256_Hash.digest(KS)
     return KS
@@ -115,7 +247,7 @@ def findHmac(msg, i):
     nonce = msg[:8]
     hmac = msg[-32:]
     theMsg = msg[8:-32]
-    hmac_new = HMAC.new(khmacs[i-1], msg, digestmod=SHA256)
+    hmac_new = HMAC.new(khmacs[i-1], theMsg, digestmod=SHA256)
     hmac_new= hmac_new.digest()
     print("hmac: ", hmac)
     print("hmac_new: ", hmac_new)

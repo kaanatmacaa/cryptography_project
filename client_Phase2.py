@@ -1,5 +1,5 @@
 from ecpy.curves import Curve,Point
-from Crypto.Hash import SHA3_256 
+from Crypto.Hash import SHA3_256, SHA256
 import Crypto.Random.random # a bit better secure random number generation 
 import client_basics as cb
 import client_basics_Phase2 as cb2
@@ -106,7 +106,7 @@ kenc3, khmac3, kkdf3 = findKdf(kkdf2)
 kenc4, khmac4, kkdf4 = findKdf(kkdf3)
 kenc5, khmac5, kkdf5 = findKdf(kkdf4)
 
-khmacs = [int.from_bytes(khmac1, byteorder="big"), khmac2, khmac3, khmac4, khmac5]
+khmacs = [khmac1, khmac2, khmac3, khmac4, khmac5]
 cmsgs = []
 
 def findHmac(msg, i):
@@ -115,8 +115,10 @@ def findHmac(msg, i):
     nonce = msg[:8]
     hmac = msg[-32:]
     theMsg = msg[8:-32]
-    hmac_new = HMAC.new(khmacs[i-1], msg, digestmod=SHA3_256)
-    hmac_new= SHA3_256.SHA3_256_Hash.digest(hmac_new)
+    hmac_new = HMAC.new(khmacs[i-1], msg, digestmod=SHA256)
+    hmac_new= hmac_new.digest()
+    print("hmac: ", hmac)
+    print("hmac_new: ", hmac_new)
     if(hmac == hmac_new):
         print("True, msg authenticated!")
         cmsgs.append(theMsg)
@@ -124,15 +126,10 @@ def findHmac(msg, i):
         print("False, not authenticated!")
 
 findHmac(msg1, 1)
-"""
 findHmac(msg2, 2)
 findHmac(msg3, 3)
 findHmac(msg4, 4)
 findHmac(msg5, 5)
-"""
-
-
-
 """
 c1 -> khmac -> if valid -> aes decr -> m1 
 """

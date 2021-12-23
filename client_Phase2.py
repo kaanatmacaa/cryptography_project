@@ -247,10 +247,19 @@ kenc3, khmac3, kkdf3 = findKdf(kkdf2)
 kenc4, khmac4, kkdf4 = findKdf(kkdf3)
 kenc5, khmac5, kkdf5 = findKdf(kkdf4)
 
+kencs = [kenc1, kenc2, kenc3, kenc4, kenc5]
 khmacs = [khmac1, khmac2, khmac3, khmac4, khmac5]
 cmsgs = []
+nonces = []
+hmacs = []
+encs = []
+
+"""
+c1 -> khmac -> if valid -> aes decr -> m1 
+"""
 
 def findHmac(msg, i):
+    print("msg: ", i)
     msg = msg.to_bytes((msg.bit_length()+7)//8,"big")
     nonce = msg[:8]
     hmac = msg[-32:]
@@ -263,6 +272,10 @@ def findHmac(msg, i):
     if(hmac == hmac_final):
         print("True, msg authenticated!")
         cmsgs.append(theMsg)
+        nonces.append(nonce)
+        hmacs.append(hmac)
+        encs.append(kencs[i-1])
+        
     else:
         print("False, not authenticated!")
 
@@ -271,13 +284,14 @@ findHmac(msg2, 2)
 findHmac(msg3, 3)
 findHmac(msg4, 4)
 findHmac(msg5, 5)
-"""
-c1 -> khmac -> if valid -> aes decr -> m1 
-"""
 
+def AesDecrypt(ctext, key, nonce):
+    cipher = AES.new(key, AES.MODE_CTR, nonce=nonce) #keyenc, AES.MODE_CTR, nonce=ctext[0:8]
+    dtext = cipher.decrypt(ctext)
+    dtext = dtext.decode('UTF-8')
+    print("plaintext: ", dtext)
 
-"""
-cipher = AES.new(key, AES.MODE_CTR, nonce=ctext[0:8]) #keyenc, AES.MODE_CTR, nonce=ctext[0:8]
-dtext = cipher.decrypt(ctext[8:])
-print("Decrypted text: ", dtext.decode('UTF-8'))
-"""
+AesDecrypt(cmsgs[0], encs[0], nonces[0])
+AesDecrypt(cmsgs[1], encs[1], nonces[1])
+AesDecrypt(cmsgs[2], encs[2], nonces[2])
+AesDecrypt(cmsgs[3], encs[3], nonces[3])

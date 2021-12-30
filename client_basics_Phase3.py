@@ -83,6 +83,7 @@ def PseudoSendMsgPH3(h,s):
     print("Sending message is: ", mes)
     response = requests.put('{}/{}'.format(API_URL, "PseudoSendMsgPH3"), json = mes)		
     print(response.json())
+    return response
 
 def ReqMsg(h,s):
     mes = {'ID':stuID, 'H': h, 'S': s}

@@ -192,52 +192,41 @@ print("OTK_PRIV_ARR: ", otk_priv_arr)
 
 #PHASE 2 
 #TODO
-otk_priv_arr =  [32610334412777025311672807042385280795434039266494728450874032224203095898161, 32774947972937051950870548189891290387327846471011435400270810097417857876764, 68269495634172440809542006528561259450327101224693250036008584851323151864347, 91271860144830471887402826172872485717142667241615594071851960012910170300465, 19797772943454608950758634906525457482358382850946173877336990652065781695722, 26897050712923542425270366020569077788766112661883445605006773991198127154451, 18111230317373257671199044685904045160643543835460345547589346911028454731720, 60645963752030912428752204661502638840467861313061217062095164236229041587843, 76429841922310342335610439103381968669706403635494219704678910223575983075780, 20092445212356651770825096150491490912910959653795301542224901413591081595654]
-"""
-otk_priv_arr = [58812550160581575630508725941736887561194979997043183966966185494849940249251, 113134768184265094285950611350831621014151997963594796624397301921177885399934,
-                20267076738575867168349684504005399720465890257461154860365299450991689807875, 78437127372312140030973816279715228984360670118096910250844032095937373991384,
-                88238604028222129991341306324137765037896705104940596475795590577249277344506, 114029923154266917463210894558908505676709706603670706106915845597898785505321, 
-                90731849819740707596931152818883722845170974802295882459622297656179653042346, 114616496261347604295832409209194250071998773458541013733988138469452990133859, 
-                71060922069370357355738292982925762459434523425813481073577732910597829357146, 103462645275059932554340636620533275739926310988787191875565565529839223108967]
-"""
+otk_priv_arr =  [32610334412777025311672807042385280795434039266494728450874032224203095898161, 32774947972937051950870548189891290387327846471011435400270810097417857876764,
+                 68269495634172440809542006528561259450327101224693250036008584851323151864347, 91271860144830471887402826172872485717142667241615594071851960012910170300465,
+                 19797772943454608950758634906525457482358382850946173877336990652065781695722, 26897050712923542425270366020569077788766112661883445605006773991198127154451,
+                 18111230317373257671199044685904045160643543835460345547589346911028454731720, 60645963752030912428752204661502638840467861313061217062095164236229041587843,
+                 76429841922310342335610439103381968669706403635494219704678910223575983075780, 20092445212356651770825096150491490912910959653795301542224901413591081595654]
 
-
-cb2.PseudoSendMsg(h, s) #Your favourite pseudo-client sent you 5 messages. You can get them from the server
-
+print()
+cb3.PseudoSendMsg(h, s) #Your favourite pseudo-client sent you 5 messages. You can get them from the server
+#PseudoSendMsgPH3
 print("1:")
-idb1, otkid1, msgid1, msg1, ekx1, eky1 = cb2.ReqMsg(h, s)
+idb1, otkid1, msgid1, msg1, ekx1, eky1 = cb3.ReqMsg(h, s)
 print("2:")
-idb2, otkid2, msgid2, msg2, ekx2, eky2 = cb2.ReqMsg(h, s)
+idb2, otkid2, msgid2, msg2, ekx2, eky2 = cb3.ReqMsg(h, s)
 print("3:")
-idb3, otkid3, msgid3, msg3, ekx3, eky3 = cb2.ReqMsg(h, s)
+idb3, otkid3, msgid3, msg3, ekx3, eky3 = cb3.ReqMsg(h, s)
 print("4:")
-idb4, otkid4, msgid4, msg4, ekx4, eky4 = cb2.ReqMsg(h, s)
+idb4, otkid4, msgid4, msg4, ekx4, eky4 = cb3.ReqMsg(h, s)
 print("5:")
-idb5, otkid5, msgid5, msg5, ekx5, eky5 = cb2.ReqMsg(h, s)
+idb5, otkid5, msgid5, msg5, ekx5, eky5 = cb3.ReqMsg(h, s)
 
 #3.2.1 Session Key (KS) 
 def findKS(otkid, ekx, eky):
     ek = Point(ekx, eky, E)
     T = otk_priv_arr[otkid] * ek
     U = (T.x).to_bytes(((T.x).bit_length()+7)//8, "big") + (T.y).to_bytes(((T.y).bit_length()+7)//8, "big") + b'MadMadWorld'
-    #KS = SHA3_256.SHA3_256_Hash(U, True)
-    #KS = SHA3_256.SHA3_256_Hash.digest(KS)
     KS = SHA3_256.new(U).digest()
     return KS
 
 ks1 = findKS(otkid1, ekx1, eky1)
-#ks2 = findKS(otkid2, ekx2, eky2)
-#ks3 = findKS(otkid3, ekx3, eky3)
-#ks4 = findKS(otkid4, ekx4, eky4)
-#ks5 = findKS(otkid5, ekx5, eky5)
 
 def findKdf(ks):
     kenc = SHA3_256.new(ks + b'LeaveMeAlone').digest()
     khmac = SHA3_256.new(kenc + b'GlovesAndSteeringWheel').digest()
     kkdf = SHA3_256.new(khmac + b'YouWillNotHaveTheDrink').digest()
-
     return kenc, khmac, kkdf
-
 
 kenc1, khmac1, kkdf1 = findKdf(ks1)
 kenc2, khmac2, kkdf2 = findKdf(kkdf1)
@@ -252,10 +241,6 @@ nonces = []
 hmacs = []
 encs = []
 ids = []
-
-"""
-c1 -> khmac -> if valid -> aes decr -> m1 
-"""
 
 def findHmac(msg, i):
     print("msg: ", i)
@@ -275,7 +260,6 @@ def findHmac(msg, i):
         hmacs.append(hmac)
         encs.append(kencs[i-1])
         ids.append(i)
-        
     else:
         print("False, not authenticated!")
 
@@ -301,7 +285,6 @@ AesDecrypt(cmsgs[3], encs[3], nonces[3])
 print("")
 print("------------------------------------------------------")
 print("PHASE 3:")
-#sa = Crypto.Random.random.randint(0, n-1) #sa is private - identity key
 sa = 17353634583535269100214152160979107048399289142843300833199020552285271875066
 print("sa: ", sa)
 
@@ -312,7 +295,7 @@ print("qa: ",qa)
 #stuID = stuID.to_bytes(2,byteorder="big")
 print("stuId: ", stuID)
 
-m = 18007
+ServerID = 18007
 k = 1748178
 
 R = k * p
@@ -350,9 +333,8 @@ print("KEYID: ", KEYID)
 print("OTK_X: ", OTK_X)
 print("OTK_Y: ", OTK_Y)
 
-otk_b = Point(OTK_X,OTK_Y, E)
+otk_b = Point(OTK_X,OTK_Y, E) #public client
 
-#sa = Crypto.Random.random.randint(0, n-1) #sa is private - identity key
 ek_a_priv = Crypto.Random.random.randint(1, n-2)
 print("ek_a_priv: ", ek_a_priv)
 ek_a_pub = ek_a_priv * p #qa is public key
@@ -365,30 +347,37 @@ print("U: ",U)
 KS_P3 = SHA3_256.new(U).digest()
 print("KS_P3: ",KS_P3)
 
-kenc_p3 = SHA3_256.new(KS_P3 + b'LeaveMeAlone').digest()
-print("kenc_p3: ",kenc_p3)
-khmac_p3 = SHA3_256.new(kenc_p3 + b'GlovesAndSteeringWheel').digest()
-print("khmac_p3: ",khmac_p3)
-kkdf_p3 = SHA3_256.new(khmac_p3 + b'YouWillNotHaveTheDrink').digest()
-print("kkdf_p3: ",kkdf_p3)
+def findKdf(ks):
+    kenc = SHA3_256.new(ks + b'LeaveMeAlone').digest()
+    khmac = SHA3_256.new(kenc + b'GlovesAndSteeringWheel').digest()
+    kkdf = SHA3_256.new(khmac + b'YouWillNotHaveTheDrink').digest()
+    return kenc, khmac, kkdf
+
+kenc1_p3, khmac1_p3, kkdf1_p3 = findKdf(KS_P3)
+kenc2_p3, khmac2_p3, kkdf2_p3 = findKdf(kkdf1_p3)
+kenc3_p3, khmac3_p3, kkdf3_p3 = findKdf(kkdf2_p3)
+kenc4_p3, khmac4_p3, kkdf4_p3 = findKdf(kkdf3_p3)
+kenc5_p3, khmac5_p3, kkdf5_p3 = findKdf(kkdf4_p3)
 
 
-def AesEncrypt(ptext, key, nonce):
-    cipher = AES.new(key, AES.MODE_CTR, nonce=nonce)
+def AesEncrypt(ptext, key):
+    cipher = AES.new(key, AES.MODE_CTR)
     ctext = cipher.nonce + cipher.encrypt(ptext)
     return ctext
 
-ctext1 = AesEncrypt(cmsgs[0], kenc_p3, nonces[0])
-ctext2 = AesEncrypt(cmsgs[1], kenc_p3, nonces[1])
-ctext3 = AesEncrypt(cmsgs[2], kenc_p3, nonces[2])
-ctext4 = AesEncrypt(cmsgs[3], kenc_p3, nonces[3])
+ctext1 = AesEncrypt(cmsgs[0], kenc1_p3)
+ctext2 = AesEncrypt(cmsgs[1], kenc2_p3)
+ctext3 = AesEncrypt(cmsgs[2], kenc3_p3)
+ctext4 = AesEncrypt(cmsgs[3], kenc4_p3)
+ctext5 = AesEncrypt(cmsgs[4], kenc5_p3)
 print("cipher after decrpyt1: ", ctext1)
 print("cipher after decrpyt2: ", ctext2)
 print("cipher after decrpyt3: ", ctext3)
 print("cipher after decrpyt4: ", ctext4)
+print("cipher after decrpyt5: ", ctext5)
 
-def addHmac(ctext):
-    hmac_p3 = HMAC.new(khmac_p3, digestmod=SHA256)
+def addHmac(ctext, hmac):
+    hmac_p3 = HMAC.new(hmac, digestmod=SHA256)
     print("hmac_p3: ",hmac_p3)
     hmac_p3.update(ctext)
     print("hmac_p3: ",hmac_p3)
@@ -399,21 +388,22 @@ def addHmac(ctext):
     fin = str(fin)
     return fin
 
-fin1 = addHmac(ctext1)
-fin2 = addHmac(ctext2)
-fin3 = addHmac(ctext3)
-fin4 = addHmac(ctext4)
+fin1 = addHmac(ctext1, khmac1_p3)
+fin2 = addHmac(ctext2, khmac2_p3)
+fin3 = addHmac(ctext3, khmac3_p3)
+fin4 = addHmac(ctext4, khmac4_p3)
+fin5 = addHmac(ctext5, khmac5_p3)
 
 print("")
-cb3.SendMsg(stuID, m, 54, ids[0], fin1, ek_a_pub.x, ek_a_pub.y)
+cb3.SendMsg(stuID, ServerID, 54, 1, fin1, ek_a_pub.x, ek_a_pub.y) #1 
 print("")
-cb3.SendMsg(stuID, m, 54, ids[1], fin2, ek_a_pub.x, ek_a_pub.y)
+cb3.SendMsg(stuID, ServerID, 54, 2, fin2, ek_a_pub.x, ek_a_pub.y)
 print("")
-cb3.SendMsg(stuID, m, 54, ids[2], fin3, ek_a_pub.x, ek_a_pub.y)
+cb3.SendMsg(stuID, ServerID, 54, 3, fin3, ek_a_pub.x, ek_a_pub.y)
 print("")
-cb3.SendMsg(stuID, m, 54, ids[3], fin4, ek_a_pub.x, ek_a_pub.y)
+cb3.SendMsg(stuID, ServerID, 54, 4, fin4, ek_a_pub.x, ek_a_pub.y)
 print("")
-
-#cb3.Status(stuID,h,s)
+cb3.SendMsg(stuID, ServerID, 54, 4, fin5, ek_a_pub.x, ek_a_pub.y)
+print("")
 
 #4.3

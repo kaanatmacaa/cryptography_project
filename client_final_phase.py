@@ -199,7 +199,7 @@ otk_priv_arr =  [326103344127770253116728070423852807954340392664947284508740322
                  76429841922310342335610439103381968669706403635494219704678910223575983075780, 20092445212356651770825096150491490912910959653795301542224901413591081595654]
 
 print()
-cb3.PseudoSendMsg(h, s) #Your favourite pseudo-client sent you 5 messages. You can get them from the server
+cb3.PseudoSendMsgPH3(h, s) #Your favourite pseudo-client sent you 5 messages. You can get them from the server
 #PseudoSendMsgPH3
 print("1:")
 idb1, otkid1, msgid1, msg1, ekx1, eky1 = cb3.ReqMsg(h, s)

@@ -213,8 +213,6 @@ def findKS(otkid, ekx, eky):
     ek = Point(ekx, eky, E)
     T = otk_priv_arr[otkid] * ek
     U = (T.x).to_bytes(((T.x).bit_length()+7)//8, "big") + (T.y).to_bytes(((T.y).bit_length()+7)//8, "big") + b'MadMadWorld'
-    #KS = SHA3_256.SHA3_256_Hash(U, True)
-    #KS = SHA3_256.SHA3_256_Hash.digest(KS)
     KS = SHA3_256.new(U).digest()
     return KS
 
@@ -275,7 +273,6 @@ def findHmac(msg, i):
         nonces.append(nonce)
         hmacs.append(hmac)
         encs.append(kencs[i-1])
-        
     else:
         print("False, not authenticated!")
 

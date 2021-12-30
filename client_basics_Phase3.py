@@ -19,6 +19,7 @@ import json
 API_URL = 'http://10.92.52.175:5000/'
 
 stuID =  28239  ## Change this to your ID number
+otkid = 54
 
 #server's Identitiy public key
 #IKey_Ser = Point(93223115898197558905062012489877327981787036929201444813217704012422483432813 , 8985629203225767185464920094198364255740987346743912071843303975587695337619, curve)
@@ -92,13 +93,13 @@ def ReqMsg(h,s):
         res = response.json()
         return res["IDB"], res["OTKID"], res["MSGID"], res["MSG"], res["EK.X"], res["EK.Y"]
     
-'''
+
 def SendMsg(idA, idB, otkid, msgid, msg, ekx, eky):
-    mes = {"IDA":idA, "IDB":idB, "OTKID": int(otkID), "MSGID": msgid, "MSG": msg, "EK.X": ekx, "EK.Y": eky}
+    mes = {"IDA":idA, "IDB":idB, "OTKID": int(otkid), "MSGID": msgid, "MSG": msg, "EK.X": ekx, "EK.Y": eky}
     print("Sending message is: ", mes)
     response = requests.put('{}/{}'.format(API_URL, "SendMSG"), json = mes)
     print(response.json())    
-'''        
+      
 
 def reqOTKB(stuID, stuIDB, h, s):
     OTK_request_msg = {'IDA': stuID, 'IDB':stuIDB, 'S': s, 'H': h}
@@ -120,4 +121,3 @@ def Status(stuID, h, s):
     if (response.ok == True):
         res = response.json()
         return res['numMSG'], res['numOTK'], res['StatusMSG']	
-

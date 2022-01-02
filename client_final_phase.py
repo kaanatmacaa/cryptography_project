@@ -352,6 +352,7 @@ print("U: ",U)
 KS_P3 = SHA3_256.new(U).digest()
 print("KS_P3: ",KS_P3)
 
+#creating the chain
 def findKdf(ks):
     kenc = SHA3_256.new(ks + b'LeaveMeAlone').digest()
     khmac = SHA3_256.new(kenc + b'GlovesAndSteeringWheel').digest()
@@ -364,7 +365,7 @@ kenc3_p3, khmac3_p3, kkdf3_p3 = findKdf(kkdf2_p3)
 kenc4_p3, khmac4_p3, kkdf4_p3 = findKdf(kkdf3_p3)
 kenc5_p3, khmac5_p3, kkdf5_p3 = findKdf(kkdf4_p3)
 
-
+#encryption
 def AesEncrypt(ptext, key):
     cipher = AES.new(key, AES.MODE_CTR)
     ctext = cipher.nonce + cipher.encrypt(ptext)
@@ -413,7 +414,7 @@ cb3.SendMsg(stuID, ServerID, 54, 5, fin5, ek_a_pub.x, ek_a_pub.y)
 print("")
 
 #4.2
-#cb3.PseudoSendMsgPH3(h,s)
+#checking the status
 numMSG, numOTK, StatusMSG = cb3.Status(stuID, h, s)
 print("Num msg: ", numMSG)
 print("Num otk: ", numOTK)
@@ -459,6 +460,7 @@ print("U: ",U)
 KS_P3 = SHA3_256.new(U).digest()
 print("KS_P3: ",KS_P3)
 
+#creating the chain
 def findKdf(ks):
     kenc = SHA3_256.new(ks + b'LeaveMeAlone').digest()
     khmac = SHA3_256.new(kenc + b'GlovesAndSteeringWheel').digest()
@@ -474,6 +476,7 @@ kenc5_p3, khmac5_p3, kkdf5_p3 = findKdf(kkdf4_p3)
 khmacs_p3 = [khmac1_p3, khmac2_p3, khmac3_p3, khmac4_p3,khmac5_p3 ]
 kencs_p3 = [kenc1_p3, kenc2_p3, kenc3_p3, kenc4_p3,kenc5_p3 ]
 
+#encryption
 def AesEncrypt(ptext, key):
     cipher = AES.new(key, AES.MODE_CTR)
     ctext = cipher.nonce + cipher.encrypt(ptext)
@@ -491,6 +494,7 @@ print("cipher after decrpyt3: ", ctext3)
 print("cipher after decrpyt4: ", ctext4)
 print("cipher after decrpyt5: ", ctext5)
 
+#returning final ciphertext as byte and string
 def addHmac(ctext, hmac):
     hmac_p3 = HMAC.new(hmac, digestmod=SHA256)
     print("hmac_p3: ",hmac_p3)
@@ -529,6 +533,7 @@ nonces_3 = []
 hmacs_3 = []
 encs_3 = []
 
+#seperating the fins
 def findHmac(msg, i):
     print("msg: ", i)
     nonce = msg[:8]
@@ -542,7 +547,7 @@ def findHmac(msg, i):
     hmacs_3.append(hmac)
     encs_3.append(kencs_p3[i-1])
 
-findHmac(fin1, 1)
+findHmac(fin1, 1) 
 findHmac(fin2, 2)
 findHmac(fin3, 3)
 findHmac(fin4, 4)
@@ -566,7 +571,8 @@ dtext4_3 = bytes(dtext4_3, 'utf-8')
 dtext5_3 = AesDecrypt(cmsgs_3[4], encs_3[4], nonces_3[4]) #because now all the msg are correct (phase3)
 dtext5_3 = bytes(dtext5_3, 'utf-8')
 
-print("Check for dtext1: ", dtext1_3==dtext1)
+#to check if we sent the correct dtexts to the server
+print("Check for dtext1: ", dtext1_3==dtext1) 
 print("Check for dtext2: ", dtext2_3==dtext2)
 print("Check for dtext3: ", dtext3_3==dtext3)
 print("Check for dtext4: ", dtext4_3==dtext4)

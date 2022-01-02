@@ -1,0 +1,25 @@
+CS411 Project 
+Kaan Atmaca & Eren Elcin
+
+Project Overview: 
+- Details are commented in the code
+
+Phase 1:
+- Creation and registiration of the identity key
+- Creation and registiration of the signed pre-key
+- 10 * OTK generation
+- Generating HMAC keys for authentication
+- Registiring each OTK to the server
+
+Phase 2:
+- Creation of session key by using our private otk and server pub ek
+- Key derivation chain by the use of ks 
+- Downloading and decrypting messages from pseudo-clients
+
+Phase 3:
+- Get otk public from the server and generate ek priv
+- Check status of the otks and messages
+- Creation of session key
+- Key derivation chain by the use of ks 
+- Encrpyt the decrypted messages and send it to the pseudo-client
+- Check if all correct 

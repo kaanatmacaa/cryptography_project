@@ -100,7 +100,7 @@ else:
 #cb.IKRegVerify(code) Registered successfully reset code: 706974
 
 #2.2 signed pre key
-#cb3.ResetOTK(h,s) #TODO
+cb3.ResetOTK(h,s) #TODO
 spk_priv = 97386945159447522628161478992249335496917184340606559844874149341380030966312
 print("skp_priv: ", spk_priv)
 
@@ -180,24 +180,20 @@ for i in range(0,10):
     otk_pub = otk_priv * p #otk_pub is public key
     print("otk_pub_ ", i ,":",otk_pub)
 
-    #a = cb.OTKReg(i,otk_pub.x,otk_pub.y,otk_cal(k_hmac, otk_pub)) #TODO
-    a = "True"
+    a = cb.OTKReg(i,otk_pub.x,otk_pub.y,otk_cal(k_hmac, otk_pub)) #TODO
+    #a = "True"
     print("Result :", a)
     print("")
     otk_priv_arr.append(otk_priv)
+
 
 print("OTK_PRIV_ARR: ", otk_priv_arr)
 
 
 
 #PHASE 2 
-#TODO
-otk_priv_arr =  [32610334412777025311672807042385280795434039266494728450874032224203095898161, 32774947972937051950870548189891290387327846471011435400270810097417857876764,
-                 68269495634172440809542006528561259450327101224693250036008584851323151864347, 91271860144830471887402826172872485717142667241615594071851960012910170300465,
-                 19797772943454608950758634906525457482358382850946173877336990652065781695722, 26897050712923542425270366020569077788766112661883445605006773991198127154451,
-                 18111230317373257671199044685904045160643543835460345547589346911028454731720, 60645963752030912428752204661502638840467861313061217062095164236229041587843,
-                 76429841922310342335610439103381968669706403635494219704678910223575983075780, 20092445212356651770825096150491490912910959653795301542224901413591081595654]
-
+print("------------------------------------------------------")
+print("PHASE 2: ")
 print()
 cb3.PseudoSendMsgPH3(h, s) #Your favourite pseudo-client sent you 5 messages. You can get them from the server
 #PseudoSendMsgPH3
@@ -284,7 +280,7 @@ dtext3 = AesDecrypt(cmsgs[2], encs[2], nonces[2])
 dtext3 = bytes(dtext3, 'utf-8')
 dtext4 = AesDecrypt(cmsgs[3], encs[3], nonces[3])
 dtext4 = bytes(dtext4, 'utf-8')
-dtext5 = AesDecrypt(cmsgs[4], encs[4], nonces[4])           #because now all the msg are correct (phase3)
+dtext5 = AesDecrypt(cmsgs[4], encs[4], nonces[4]) #because now all the msg are correct (phase3)
 dtext5 = bytes(dtext5, 'utf-8')
 
 dtext_list = [dtext1, dtext2, dtext3, dtext4, dtext5]       #needed at phase3 for grading part. These are the msg we will send to pseudo client
@@ -302,7 +298,6 @@ qa = sa * p #qa is public key
 print("qa: ",qa)
 
 #signature generation
-#stuID = stuID.to_bytes(2,byteorder="big")
 print("stuId: ", stuID)
 
 ServerID = 18007
@@ -374,13 +369,7 @@ def AesEncrypt(ptext, key):
     cipher = AES.new(key, AES.MODE_CTR)
     ctext = cipher.nonce + cipher.encrypt(ptext)
     return ctext
-'''
-ctext1 = AesEncrypt(cmsgs[0], kenc1_p3)
-ctext2 = AesEncrypt(cmsgs[1], kenc2_p3)
-ctext3 = AesEncrypt(cmsgs[2], kenc3_p3)
-ctext4 = AesEncrypt(cmsgs[3], kenc4_p3)
-ctext5 = AesEncrypt(cmsgs[4], kenc5_p3)
-'''
+
 ctext1 = AesEncrypt(dtext_list[0], kenc1_p3)
 ctext2 = AesEncrypt(dtext_list[1], kenc2_p3)
 ctext3 = AesEncrypt(dtext_list[2], kenc3_p3)
@@ -412,7 +401,7 @@ fin4 = addHmac(ctext4, khmac4_p3)
 fin5 = addHmac(ctext5, khmac5_p3)
 
 print("")
-cb3.SendMsg(stuID, ServerID, 54, 1, fin1, ek_a_pub.x, ek_a_pub.y) #1 
+cb3.SendMsg(stuID, ServerID, 54, 1, fin1, ek_a_pub.x, ek_a_pub.y) 
 print("")
 cb3.SendMsg(stuID, ServerID, 54, 2, fin2, ek_a_pub.x, ek_a_pub.y)
 print("")
@@ -423,4 +412,162 @@ print("")
 cb3.SendMsg(stuID, ServerID, 54, 5, fin5, ek_a_pub.x, ek_a_pub.y)
 print("")
 
+#4.2
+#cb3.PseudoSendMsgPH3(h,s)
+numMSG, numOTK, StatusMSG = cb3.Status(stuID, h, s)
+print("Num msg: ", numMSG)
+print("Num otk: ", numOTK)
+print("Status msg: ", StatusMSG)
+#You have only 1 OTK left. Please register new OTKs. The largest key id is 9
+largest_key_id = 9
+otk_priv_arr2 = []
+for i in range(largest_key_id+1, largest_key_id + 11 - numOTK):
+    otk_priv = Crypto.Random.random.randint(0, n-1) #otk_priv is private key
+    print("otk_priv_ ", i ,":", otk_priv)
+    otk_pub = otk_priv * p #otk_pub is public key
+    print("otk_pub_ ", i ,":",otk_pub)
+    a = cb.OTKReg(i,otk_pub.x,otk_pub.y,otk_cal(k_hmac, otk_pub)) 
+    print("Result :", a)
+    print("")
+    otk_priv_arr2.append(otk_priv)
+
+print("otk_priv_arr2: ", otk_priv_arr2)
+otk_priv_arr.append(otk_priv_arr2)
+numMSG, numOTK, StatusMSG = cb3.Status(stuID, h, s)
+
 #4.3
+
+KEYID =  54
+OTK_X =  49423115135639117780110598800067102951151492842969517804762168007684819320280
+OTK_Y =  103838483670827101067809167427012791940728140473666527481560818625322840035032
+
+print("KEYID: ", KEYID)
+print("OTK_X: ", OTK_X)
+print("OTK_Y: ", OTK_Y)
+
+otk_b = Point(OTK_X,OTK_Y, E) #public client
+
+ek_a_priv = Crypto.Random.random.randint(1, n-2)
+print("ek_a_priv: ", ek_a_priv)
+ek_a_pub = ek_a_priv * p #qa is public key
+print("ek_a_pub: ",ek_a_pub)
+
+T = ek_a_priv * otk_b 
+print("T: ",T)
+U = (T.x).to_bytes(((T.x).bit_length()+7)//8, "big") + (T.y).to_bytes(((T.y).bit_length()+7)//8, "big") + b'MadMadWorld'
+print("U: ",U)
+KS_P3 = SHA3_256.new(U).digest()
+print("KS_P3: ",KS_P3)
+
+def findKdf(ks):
+    kenc = SHA3_256.new(ks + b'LeaveMeAlone').digest()
+    khmac = SHA3_256.new(kenc + b'GlovesAndSteeringWheel').digest()
+    kkdf = SHA3_256.new(khmac + b'YouWillNotHaveTheDrink').digest()
+    return kenc, khmac, kkdf
+
+kenc1_p3, khmac1_p3, kkdf1_p3 = findKdf(KS_P3)
+kenc2_p3, khmac2_p3, kkdf2_p3 = findKdf(kkdf1_p3)
+kenc3_p3, khmac3_p3, kkdf3_p3 = findKdf(kkdf2_p3)
+kenc4_p3, khmac4_p3, kkdf4_p3 = findKdf(kkdf3_p3)
+kenc5_p3, khmac5_p3, kkdf5_p3 = findKdf(kkdf4_p3)
+
+khmacs_p3 = [khmac1_p3, khmac2_p3, khmac3_p3, khmac4_p3,khmac5_p3 ]
+kencs_p3 = [kenc1_p3, kenc2_p3, kenc3_p3, kenc4_p3,kenc5_p3 ]
+
+def AesEncrypt(ptext, key):
+    cipher = AES.new(key, AES.MODE_CTR)
+    ctext = cipher.nonce + cipher.encrypt(ptext)
+    return ctext
+
+ctext1 = AesEncrypt(dtext_list[0], kenc1_p3)
+ctext2 = AesEncrypt(dtext_list[1], kenc2_p3)
+ctext3 = AesEncrypt(dtext_list[2], kenc3_p3)
+ctext4 = AesEncrypt(dtext_list[3], kenc4_p3)
+ctext5 = AesEncrypt(dtext_list[4], kenc5_p3)
+
+print("cipher after decrpyt1: ", ctext1)
+print("cipher after decrpyt2: ", ctext2)
+print("cipher after decrpyt3: ", ctext3)
+print("cipher after decrpyt4: ", ctext4)
+print("cipher after decrpyt5: ", ctext5)
+
+def addHmac(ctext, hmac):
+    hmac_p3 = HMAC.new(hmac, digestmod=SHA256)
+    print("hmac_p3: ",hmac_p3)
+    hmac_p3.update(ctext)
+    print("hmac_p3: ",hmac_p3)
+    hmac_final_p3 = hmac_p3.digest()
+    print("hmac_final_p3: ",hmac_final_p3)
+    fin = ctext + hmac_final_p3
+    print("final: ", fin)
+    fin_s = str(fin)
+    return fin, fin_s
+
+fin1, fin1_s = addHmac(ctext1, khmac1_p3)
+fin2, fin2_s = addHmac(ctext2, khmac2_p3)
+fin3, fin3_s = addHmac(ctext3, khmac3_p3)
+fin4, fin4_s = addHmac(ctext4, khmac4_p3)
+fin5, fin5_s = addHmac(ctext5, khmac5_p3)
+
+print("")
+cb3.SendMsg(stuID, ServerID, 54, 1, fin1_s, ek_a_pub.x, ek_a_pub.y) 
+print("")
+cb3.SendMsg(stuID, ServerID, 54, 2, fin2_s, ek_a_pub.x, ek_a_pub.y)
+print("")
+cb3.SendMsg(stuID, ServerID, 54, 3, fin3_s, ek_a_pub.x, ek_a_pub.y)
+print("")
+cb3.SendMsg(stuID, ServerID, 54, 4, fin4_s, ek_a_pub.x, ek_a_pub.y)
+print("")
+cb3.SendMsg(stuID, ServerID, 54, 5, fin5_s, ek_a_pub.x, ek_a_pub.y)
+print("")
+
+#4.3 to check this part we will know decrypt as we did in phase2
+
+to_be_decrypted = [fin1, fin2, fin3, fin4, fin5]
+cmsgs_3 = []
+nonces_3 = []
+hmacs_3 = []
+encs_3 = []
+
+def findHmac(msg, i):
+    print("msg: ", i)
+    nonce = msg[:8]
+    hmac = msg[-32:]
+    theMsg = msg[8:-32]
+    hmac_new = HMAC.new(khmacs_p3[i-1], digestmod=SHA256)
+    hmac_new.update(theMsg)
+    hmac_final= hmac_new.digest()
+    cmsgs_3.append(theMsg)
+    nonces_3.append(nonce)
+    hmacs_3.append(hmac)
+    encs_3.append(kencs_p3[i-1])
+
+findHmac(fin1, 1)
+findHmac(fin2, 2)
+findHmac(fin3, 3)
+findHmac(fin4, 4)
+findHmac(fin5, 5)
+
+def AesDecrypt(ctext, key, nonce):
+    cipher = AES.new(key, AES.MODE_CTR, nonce=nonce) #keyenc, AES.MODE_CTR, nonce=ctext[0:8]
+    dtext = cipher.decrypt(ctext)
+    dtext = dtext.decode('UTF-8')
+    print("plaintext: ", dtext)
+    return dtext
+
+dtext1_3 = AesDecrypt(cmsgs_3[0], encs_3[0], nonces_3[0])
+dtext1_3 = bytes(dtext1_3, 'utf-8')
+dtext2_3 = AesDecrypt(cmsgs_3[1], encs_3[1], nonces_3[1])
+dtext2_3 = bytes(dtext2_3, 'utf-8')
+dtext3_3 = AesDecrypt(cmsgs_3[2], encs_3[2], nonces_3[2])
+dtext3_3 = bytes(dtext3_3, 'utf-8')
+dtext4_3 = AesDecrypt(cmsgs_3[3], encs_3[3], nonces_3[3])
+dtext4_3 = bytes(dtext4_3, 'utf-8')
+dtext5_3 = AesDecrypt(cmsgs_3[4], encs_3[4], nonces_3[4]) #because now all the msg are correct (phase3)
+dtext5_3 = bytes(dtext5_3, 'utf-8')
+
+print("Check for dtext1: ", dtext1_3==dtext1)
+print("Check for dtext2: ", dtext2_3==dtext2)
+print("Check for dtext3: ", dtext3_3==dtext3)
+print("Check for dtext4: ", dtext4_3==dtext4)
+print("Check for dtext5: ", dtext5_3==dtext5)

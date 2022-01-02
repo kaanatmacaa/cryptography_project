@@ -274,11 +274,21 @@ def AesDecrypt(ctext, key, nonce):
     dtext = cipher.decrypt(ctext)
     dtext = dtext.decode('UTF-8')
     print("plaintext: ", dtext)
+    return dtext
 
-AesDecrypt(cmsgs[0], encs[0], nonces[0])
-AesDecrypt(cmsgs[1], encs[1], nonces[1])
-AesDecrypt(cmsgs[2], encs[2], nonces[2])
-AesDecrypt(cmsgs[3], encs[3], nonces[3])
+dtext1 = AesDecrypt(cmsgs[0], encs[0], nonces[0])
+dtext1 = bytes(dtext1, 'utf-8')
+dtext2 = AesDecrypt(cmsgs[1], encs[1], nonces[1])
+dtext2 = bytes(dtext2, 'utf-8')
+dtext3 = AesDecrypt(cmsgs[2], encs[2], nonces[2])
+dtext3 = bytes(dtext3, 'utf-8')
+dtext4 = AesDecrypt(cmsgs[3], encs[3], nonces[3])
+dtext4 = bytes(dtext4, 'utf-8')
+dtext5 = AesDecrypt(cmsgs[4], encs[4], nonces[4])           #because now all the msg are correct (phase3)
+dtext5 = bytes(dtext5, 'utf-8')
+
+dtext_list = [dtext1, dtext2, dtext3, dtext4, dtext5]       #needed at phase3 for grading part. These are the msg we will send to pseudo client
+
 
 
 #phase 3
@@ -364,12 +374,19 @@ def AesEncrypt(ptext, key):
     cipher = AES.new(key, AES.MODE_CTR)
     ctext = cipher.nonce + cipher.encrypt(ptext)
     return ctext
-
+'''
 ctext1 = AesEncrypt(cmsgs[0], kenc1_p3)
 ctext2 = AesEncrypt(cmsgs[1], kenc2_p3)
 ctext3 = AesEncrypt(cmsgs[2], kenc3_p3)
 ctext4 = AesEncrypt(cmsgs[3], kenc4_p3)
 ctext5 = AesEncrypt(cmsgs[4], kenc5_p3)
+'''
+ctext1 = AesEncrypt(dtext_list[0], kenc1_p3)
+ctext2 = AesEncrypt(dtext_list[1], kenc2_p3)
+ctext3 = AesEncrypt(dtext_list[2], kenc3_p3)
+ctext4 = AesEncrypt(dtext_list[3], kenc4_p3)
+ctext5 = AesEncrypt(dtext_list[4], kenc5_p3)
+
 print("cipher after decrpyt1: ", ctext1)
 print("cipher after decrpyt2: ", ctext2)
 print("cipher after decrpyt3: ", ctext3)
@@ -403,7 +420,7 @@ cb3.SendMsg(stuID, ServerID, 54, 3, fin3, ek_a_pub.x, ek_a_pub.y)
 print("")
 cb3.SendMsg(stuID, ServerID, 54, 4, fin4, ek_a_pub.x, ek_a_pub.y)
 print("")
-cb3.SendMsg(stuID, ServerID, 54, 4, fin5, ek_a_pub.x, ek_a_pub.y)
+cb3.SendMsg(stuID, ServerID, 54, 5, fin5, ek_a_pub.x, ek_a_pub.y)
 print("")
 
 #4.3
